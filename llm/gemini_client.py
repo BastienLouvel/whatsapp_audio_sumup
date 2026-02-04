@@ -1,11 +1,11 @@
 """Google Gemini LLM client implementation."""
 
-import base64
 import logging
 
 from google import genai
 from google.genai import types
 
+from config.settings import settings
 from llm.base_llm import BaseLLM, SummarizationResult
 from llm.common import USER_INSTRUCTION, detect_audio_format
 
@@ -13,7 +13,7 @@ from llm.common import USER_INSTRUCTION, detect_audio_format
 logger = logging.getLogger(__name__)
 
 # Mapping from generic format to MIME type
-MIME_TYPES = {
+MIME_TYPES: dict[str, str] = {
     "ogg": "audio/ogg",
     "mp3": "audio/mp3",
     "wav": "audio/wav",
@@ -29,8 +29,6 @@ class GeminiClient(BaseLLM):
     Gemini supports audio through inline data.
     """
 
-    MODEL = "gemini-2.0-flash"
-
     def __init__(self, api_key: str) -> None:
         """
         Initialize the Gemini client.
@@ -40,7 +38,10 @@ class GeminiClient(BaseLLM):
         """
         super().__init__(api_key)
         self.client = genai.Client(api_key=self.api_key)
-        logger.info("Gemini client initialized")
+        self.model = settings.gemini_model
+        self.max_tokens = settings.llm_max_tokens
+        self.temperature = settings.llm_temperature
+        logger.info(f"Gemini client initialized with model {self.model}")
 
     @property
     def provider_name(self) -> str:
@@ -73,7 +74,7 @@ class GeminiClient(BaseLLM):
             full_prompt = f"{prompt}\n\n{USER_INSTRUCTION}"
 
             response = self.client.models.generate_content(
-                model=self.MODEL,
+                model=self.model,
                 contents=[
                     types.Content(
                         parts=[
@@ -83,8 +84,8 @@ class GeminiClient(BaseLLM):
                     )
                 ],
                 config=types.GenerateContentConfig(
-                    max_output_tokens=4096,
-                    temperature=0.7,
+                    max_output_tokens=self.max_tokens,
+                    temperature=self.temperature,
                 ),
             )
 

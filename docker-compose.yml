@@ -6,8 +6,23 @@ services:
     env_file:
       - .env
     environment:
+      # LLM Configuration
       - DEFAULT_LLM=openai
       - DEFAULT_STYLE=pro
+      - OPENAI_MODEL=gpt-4o-audio-preview
+      - GEMINI_MODEL=gemini-2.0-flash
+      - LLM_MAX_TOKENS=4096
+      - LLM_TEMPERATURE=0.7
+      # API Configuration
+      - FACEBOOK_API_VERSION=v18.0
+      - HTTP_TIMEOUT=30.0
+      # FFmpeg Configuration
+      - FFMPEG_SAMPLE_RATE=16000
+      - FFMPEG_BITRATE=64k
+      - FFMPEG_TIMEOUT=300
+      # Limits
+      - MAX_AUDIO_SIZE_MB=50
+      # Logging
       - LOG_LEVEL=INFO
     restart: unless-stopped
     healthcheck:
@@ -15,6 +30,22 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - app-network
 
   ngrok:
     image: ngrok/ngrok:latest
@@ -27,4 +58,11 @@ services:
     ports:
       - "4040:4040"
     depends_on:
-      - whatsapp-summarizer
+      whatsapp-summarizer:
+        condition: service_healthy
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

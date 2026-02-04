@@ -5,6 +5,7 @@ import logging
 
 import openai
 
+from config.settings import settings
 from llm.base_llm import BaseLLM, SummarizationResult
 from llm.common import USER_INSTRUCTION, detect_audio_format, convert_audio_to_mp3
 
@@ -20,9 +21,6 @@ class OpenAIClient(BaseLLM):
     Language is auto-detected.
     """
 
-    MODEL = "gpt-4o-audio-preview"
-    MAX_TOKENS = 4096
-
     def __init__(self, api_key: str) -> None:
         """
         Initialize the OpenAI client.
@@ -32,7 +30,9 @@ class OpenAIClient(BaseLLM):
         """
         super().__init__(api_key)
         self.client = openai.OpenAI(api_key=self.api_key)
-        logger.info("OpenAI client initialized")
+        self.model = settings.openai_model
+        self.max_tokens = settings.llm_max_tokens
+        logger.info(f"OpenAI client initialized with model {self.model}")
 
     @property
     def provider_name(self) -> str:
@@ -72,8 +72,8 @@ class OpenAIClient(BaseLLM):
             audio_base64 = base64.standard_b64encode(audio_data).decode("utf-8")
 
             response = self.client.chat.completions.create(
-                model=self.MODEL,
-                max_tokens=self.MAX_TOKENS,
+                model=self.model,
+                max_tokens=self.max_tokens,
                 messages=[
                     {"role": "system", "content": prompt},
                     {
