@@ -7,7 +7,6 @@ import httpx
 
 from config.settings import settings
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -17,8 +16,6 @@ class WhatsAppClient:
 
     Handles sending messages and downloading media.
     """
-
-    BASE_URL = "https://graph.facebook.com/v18.0"
 
     def __init__(
         self,
@@ -34,13 +31,14 @@ class WhatsAppClient:
         """
         self.phone_number_id = phone_number_id or settings.whatsapp_phone_number_id
         self.access_token = access_token or settings.whatsapp_access_token
+        self.base_url = settings.facebook_base_url
 
         if not self.phone_number_id or not self.access_token:
             raise ValueError("WhatsApp credentials not configured")
 
         self.client = httpx.AsyncClient(
             headers={"Authorization": f"Bearer {self.access_token}"},
-            timeout=30.0,
+            timeout=settings.http_timeout,
         )
         logger.info("WhatsApp client initialized")
 
@@ -61,7 +59,7 @@ class WhatsAppClient:
         Returns:
             dict: API response.
         """
-        url = f"{self.BASE_URL}/{self.phone_number_id}/messages"
+        url = f"{self.base_url}/{self.phone_number_id}/messages"
 
         payload = {
             "messaging_product": "whatsapp",
@@ -78,7 +76,7 @@ class WhatsAppClient:
             response = await self.client.post(url, json=payload)
             response.raise_for_status()
             result = response.json()
-            logger.info(f"Message sent to {to}, response: {result}")
+            logger.info(f"Message sent to {to}")
             return result
         except httpx.HTTPError as e:
             logger.error(f"Failed to send message: {e}")
@@ -93,9 +91,13 @@ class WhatsAppClient:
 
         Returns:
             bytes: Raw media content.
+
+        Raises:
+            ValueError: If media URL is missing or file is too large.
+            httpx.HTTPError: If download fails.
         """
         # Step 1: Get media URL
-        url = f"{self.BASE_URL}/{media_id}"
+        url = f"{self.base_url}/{media_id}"
 
         try:
             response = await self.client.get(url)
@@ -109,8 +111,18 @@ class WhatsAppClient:
             response = await self.client.get(media_url)
             response.raise_for_status()
 
-            logger.info(f"Downloaded media {media_id}, size: {len(response.content)} bytes")
-            return response.content
+            content = response.content
+            content_size = len(content)
+
+            # Check file size limit
+            if content_size > settings.max_audio_size_bytes:
+                raise ValueError(
+                    f"Audio file too large: {content_size / 1024 / 1024:.1f}MB "
+                    f"(max: {settings.max_audio_size_mb}MB)"
+                )
+
+            logger.info(f"Downloaded media {media_id}, size: {content_size} bytes")
+            return content
 
         except httpx.HTTPError as e:
             logger.error(f"Failed to download media: {e}")
@@ -123,7 +135,7 @@ class WhatsAppClient:
         Args:
             message_id: Message ID to mark as read.
         """
-        url = f"{self.BASE_URL}/{self.phone_number_id}/messages"
+        url = f"{self.base_url}/{self.phone_number_id}/messages"
 
         payload = {
             "messaging_product": "whatsapp",

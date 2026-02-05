@@ -2,7 +2,6 @@
 
 from typing import Literal
 
-
 SummarizationStyle = Literal["pro", "humoristique", "technique"]
 
 
@@ -17,7 +16,6 @@ Instructions :
 - Longueur cible : 3-5 phrases pour un audio court, plus si nécessaire
 
 Fournis uniquement le résumé, sans introduction ni commentaire.""",
-
     "humoristique": """Tu es un assistant avec un excellent sens de l'humour. Résume cet audio avec légèreté et esprit.
 
 Instructions :
@@ -28,7 +26,6 @@ Instructions :
 - Termine par une petite touche humoristique si pertinent
 
 Fournis uniquement le résumé, sans introduction ni commentaire.""",
-
     "technique": """Tu es un expert technique. Fournis un résumé détaillé et structuré de cet audio.
 
 Instructions :

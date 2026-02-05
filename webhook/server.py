@@ -3,13 +3,12 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 
-from config.settings import settings
 from config.prompts import get_prompt
+from config.settings import settings
 from connectors.whatsapp import WhatsAppClient
 from llm.factory import LLMFactory
-
 
 # Setup logging
 settings.setup_logging()
