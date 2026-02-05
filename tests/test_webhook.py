@@ -1,25 +1,10 @@
 """Tests for webhook server."""
 
 import pytest
-from unittest.mock import patch, AsyncMock, MagicMock
-from fastapi.testclient import TestClient
 
 
 class TestWebhookVerification:
     """Tests for webhook verification endpoint."""
-
-    @pytest.fixture
-    def client(self):
-        """Create test client."""
-        with patch("webhook.server.settings") as mock_settings:
-            mock_settings.whatsapp_verify_token = "test-token"
-            mock_settings.setup_logging = MagicMock()
-            mock_settings.default_style = "pro"
-            mock_settings.default_llm = "openai"
-
-            # Need to reimport after patching
-            from webhook.server import app
-            return TestClient(app)
 
     def test_verify_webhook_success(self, client):
         """Test successful webhook verification."""
@@ -62,19 +47,46 @@ class TestWebhookVerification:
 class TestHealthCheck:
     """Tests for health check endpoint."""
 
-    @pytest.fixture
-    def client(self):
-        """Create test client."""
-        with patch("webhook.server.settings") as mock_settings:
-            mock_settings.setup_logging = MagicMock()
-            mock_settings.default_style = "pro"
-            mock_settings.default_llm = "openai"
-
-            from webhook.server import app
-            return TestClient(app)
-
     def test_health_check(self, client):
         """Test health check returns healthy status."""
         response = client.get("/health")
         assert response.status_code == 200
         assert response.json() == {"status": "healthy"}
+
+
+class TestWebhookPost:
+    """Tests for webhook POST endpoint."""
+
+    def test_webhook_post_returns_ok(self, client):
+        """Test webhook POST returns ok status."""
+        response = client.post(
+            "/webhook",
+            json={
+                "object": "whatsapp_business_account",
+                "entry": [],
+            },
+        )
+        assert response.status_code == 200
+        assert response.json() == {"status": "ok"}
+
+    def test_webhook_post_empty_messages(self, client):
+        """Test webhook POST with empty messages."""
+        response = client.post(
+            "/webhook",
+            json={
+                "object": "whatsapp_business_account",
+                "entry": [
+                    {
+                        "changes": [
+                            {
+                                "value": {
+                                    "messages": [],
+                                },
+                            },
+                        ],
+                    },
+                ],
+            },
+        )
+        assert response.status_code == 200
+        assert response.json() == {"status": "ok"}
