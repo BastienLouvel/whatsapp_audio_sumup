@@ -9,7 +9,6 @@ from config.settings import settings
 from llm.base_llm import BaseLLM, SummarizationResult
 from llm.common import USER_INSTRUCTION, detect_audio_format
 
-
 logger = logging.getLogger(__name__)
 
 # Mapping from generic format to MIME type

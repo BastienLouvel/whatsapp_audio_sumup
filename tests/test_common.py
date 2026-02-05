@@ -1,8 +1,6 @@
 """Tests for LLM common utilities."""
 
-import pytest
-
-from llm.common import detect_audio_format, AUDIO_SIGNATURES
+from llm.common import AUDIO_SIGNATURES, detect_audio_format
 
 
 class TestDetectAudioFormat:

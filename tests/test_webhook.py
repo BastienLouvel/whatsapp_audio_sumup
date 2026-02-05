@@ -1,7 +1,5 @@
 """Tests for webhook server."""
 
-import pytest
-
 
 class TestWebhookVerification:
     """Tests for webhook verification endpoint."""

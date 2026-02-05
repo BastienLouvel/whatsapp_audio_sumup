@@ -1,13 +1,12 @@
 """LLM Factory for instantiating the appropriate LLM client."""
 
 import logging
-from typing import Literal, Optional
+from typing import Optional
 
+from config.settings import LLMProvider, settings
 from llm.base_llm import BaseLLM
-from llm.openai_client import OpenAIClient
 from llm.gemini_client import GeminiClient
-from config.settings import settings, LLMProvider
-
+from llm.openai_client import OpenAIClient
 
 logger = logging.getLogger(__name__)
 

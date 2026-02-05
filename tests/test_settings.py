@@ -1,10 +1,11 @@
 """Tests for settings module."""
 
 import os
-import pytest
 from unittest.mock import patch
 
-from config.settings import Settings, LLMProvider
+import pytest
+
+from config.settings import Settings
 
 
 class TestSettings:

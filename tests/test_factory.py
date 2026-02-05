@@ -1,11 +1,12 @@
 """Tests for LLM factory module."""
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 from llm.factory import LLMFactory
-from llm.openai_client import OpenAIClient
 from llm.gemini_client import GeminiClient
+from llm.openai_client import OpenAIClient
 
 
 class TestLLMFactory:

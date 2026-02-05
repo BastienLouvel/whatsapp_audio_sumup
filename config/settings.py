@@ -21,13 +21,12 @@ Environment Variables:
     MAX_AUDIO_SIZE_MB: Maximum audio file size in MB
 """
 
-import os
 import logging
+import os
 from dataclasses import dataclass
 from typing import Literal
 
 from dotenv import load_dotenv
-
 
 # Load .env file
 load_dotenv()

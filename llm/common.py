@@ -72,11 +72,16 @@ def convert_audio_to_mp3(audio_data: bytes) -> bytes:
                     [
                         "ffmpeg",
                         "-y",
-                        "-i", input_file.name,
-                        "-acodec", "libmp3lame",
-                        "-ar", str(settings.ffmpeg_sample_rate),
-                        "-ac", "1",
-                        "-b:a", settings.ffmpeg_bitrate,
+                        "-i",
+                        input_file.name,
+                        "-acodec",
+                        "libmp3lame",
+                        "-ar",
+                        str(settings.ffmpeg_sample_rate),
+                        "-ac",
+                        "1",
+                        "-b:a",
+                        settings.ffmpeg_bitrate,
                         output_file.name,
                     ],
                     capture_output=True,
@@ -88,8 +93,6 @@ def convert_audio_to_mp3(audio_data: bytes) -> bytes:
                 logger.info(f"Converted audio to MP3, size: {len(mp3_data)} bytes")
                 return mp3_data
             except subprocess.TimeoutExpired:
-                raise RuntimeError(
-                    f"ffmpeg conversion timed out after {settings.ffmpeg_timeout}s"
-                )
+                raise RuntimeError(f"ffmpeg conversion timed out after {settings.ffmpeg_timeout}s")
             except subprocess.CalledProcessError as e:
                 raise RuntimeError(f"ffmpeg conversion failed: {e.stderr.decode()}")

@@ -7,8 +7,7 @@ import openai
 
 from config.settings import settings
 from llm.base_llm import BaseLLM, SummarizationResult
-from llm.common import USER_INSTRUCTION, detect_audio_format, convert_audio_to_mp3
-
+from llm.common import USER_INSTRUCTION, convert_audio_to_mp3, detect_audio_format
 
 logger = logging.getLogger(__name__)
 

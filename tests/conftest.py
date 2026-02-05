@@ -18,6 +18,7 @@ def app():
     settings.google_api_key = "test-google-key"
 
     from webhook.server import app
+
     return app
 
 
